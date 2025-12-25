@@ -33,8 +33,8 @@ enum PTN5150A_ModeSelection {
 
 // NOTE: UFP mode after valid CC detection
 enum PTN5150A_CCVBusDetection_UFP {
-    PTN5150A_CC_V_BUS_NOT_DETECTED = 0x0,
-    PTN5150A_CC_V_BUS_DETECTED = 0x1,
+    PTN5150A_CC_VBUS_NOT_DETECTED = 0x0,
+    PTN5150A_CC_VBUS_DETECTED = 0x1,
 };
 
 // NOTE: In UFP mode
