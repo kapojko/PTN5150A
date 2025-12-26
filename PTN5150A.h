@@ -20,9 +20,9 @@
 #define PTN5150A_INTERRUPT_AUDIO_ACCESSORY_FOUND 0x01
 
 enum PTN5150A_RpSelection_DFP {
-    PTN5150A_RP_SELECTION_DFP_80uA_DEFAULT = 0x0,
-    PTN5150A_RP_SELECTION_DFP_180uA_MEDIUM = 0x1,
-    PTN5150A_RP_SELECTION_DFP_330uA_HIGH = 0x2,
+    PTN5150A_RP_SELECTION_DFP_80UA_DEFAULT = 0x0,
+    PTN5150A_RP_SELECTION_DFP_180UA_MEDIUM = 0x1,
+    PTN5150A_RP_SELECTION_DFP_330UA_HIGH = 0x2,
 };
 
 enum PTN5150A_ModeSelection {
@@ -66,35 +66,67 @@ enum PTN5150A_VConnDetectedStatus {
 };
 
 struct PTN5150A_Platform {
-    int (*i2cWriteReg)(uint8_t addr7bit, uint8_t regNum, const uint8_t *data, uint8_t length, uint8_t wait);
+    int (*i2cWriteReg)(uint8_t addr7bit, uint8_t regNum, const uint8_t *data, uint8_t length,
+                       uint8_t wait);
     int (*i2cReadReg)(uint8_t addr7bit, uint8_t regNum, uint8_t *data, uint8_t length, int timeout);
+    void (*debugPrint)(const char *fmt, ...);
 
     uint8_t i2cAddress;
 };
 
-bool PTN5150A_ReadID(struct PTN5150A_Platform *platform, uint8_t *deviceVersionId, uint8_t *vendorId);
+struct PTN5150A_Control {
+    enum PTN5150A_RpSelection_DFP rpSelection;
+    enum PTN5150A_ModeSelection modeSelection;
+    bool maskInterruptCable;
+};
 
-bool PTN5150A_ReadControl(struct PTN5150A_Platform *platform, enum PTN5150A_RpSelection_DFP *rpSelection,
-    enum PTN5150A_ModeSelection *modeSelection, bool *maskInterruptCable);
-bool PTN5150A_WriteControl(struct PTN5150A_Platform *platform, enum PTN5150A_RpSelection_DFP rpSelection,
-    enum PTN5150A_ModeSelection modeSelection, bool maskInterruptCable);
+struct PTN5150A_CCStatus {
+    enum PTN5150A_CCVBusDetection_UFP vBusDetection;
+    enum PTN5150A_CCRpDetection_UFP rpDetection;
+    enum PTN5150A_CCPortAttachmentStatus portAttachmentStatus;
+    enum PTN5150A_CCPolarity polarity;
+};
 
-bool PTN5150A_ReadClearInterruptCableStatus(struct PTN5150A_Platform *platform, uint8_t *interruptCableStatus);
+extern const char *PTN5150A_RpSelection_DFP_str[];
+extern const char *PTN5150A_ModeSelection_str[];
+extern const char *PTN5150A_CCVBusDetection_UFP_str[];
+extern const char *PTN5150A_CCRpDetection_UFP_str[];
+extern const char *PTN5150A_CCPortAttachmentStatus_str[];
+extern const char *PTN5150A_CCPolarity_str[];
+extern const char *PTN5150A_VConnDetectedStatus_str[];
 
-bool PTN5150A_ReadCCStatus(struct PTN5150A_Platform *platform, enum PTN5150A_CCVBusDetection_UFP *vBusDetection,
-    enum PTN5150A_CCRpDetection_UFP *rpDetection, enum PTN5150A_CCPortAttachmentStatus *portAttachmentStatus,
-    enum PTN5150A_CCPolarity *polarity);
+bool PTN5150A_ReadID(struct PTN5150A_Platform *platform, uint8_t *deviceVersionId,
+                     uint8_t *vendorId);
 
-bool PTN5150A_ReadConDetConfiguration(struct PTN5150A_Platform *platform, bool *disableConDetOutput);
-bool PTN5150A_WriteConDetConfiguration(struct PTN5150A_Platform *platform, bool disableConDetOutput);
+bool PTN5150A_ReadControl(struct PTN5150A_Platform *platform, struct PTN5150A_Control *control);
+bool PTN5150A_WriteControl(struct PTN5150A_Platform *platform,
+                           const struct PTN5150A_Control *control);
+void PTN5150A_DebugPrintControl(struct PTN5150A_Platform *platform,
+                                const struct PTN5150A_Control *control);
 
-bool PTN5150A_ReadVConnStatus(struct PTN5150A_Platform *platform, enum PTN5150A_VConnDetectedStatus *vConnStatus);
+bool PTN5150A_ReadClearInterruptCableStatus(struct PTN5150A_Platform *platform,
+                                            uint8_t *interruptCableStatus);
+
+bool PTN5150A_ReadCCStatus(struct PTN5150A_Platform *platform, struct PTN5150A_CCStatus *ccStatus);
+void PTN5150A_DebugPrintCCStatus(struct PTN5150A_Platform *platform,
+                                 const struct PTN5150A_CCStatus *ccStatus);
+
+bool PTN5150A_ReadConDetConfiguration(struct PTN5150A_Platform *platform,
+                                      bool *disableConDetOutput);
+bool PTN5150A_WriteConDetConfiguration(struct PTN5150A_Platform *platform,
+                                       bool disableConDetOutput);
+
+bool PTN5150A_ReadVConnStatus(struct PTN5150A_Platform *platform,
+                              enum PTN5150A_VConnDetectedStatus *vConnStatus);
+void PTN5150A_DebugPrintVConnStatus(struct PTN5150A_Platform *platform,
+                                    enum PTN5150A_VConnDetectedStatus vConnStatus);
 
 bool PTN5150A_Reset(struct PTN5150A_Platform *platform);
 
 bool PTN5150A_ReadInterruptMask(struct PTN5150A_Platform *platform, uint8_t *interruptMask);
 bool PTN5150A_WriteInterruptMask(struct PTN5150A_Platform *platform, uint8_t interruptMask);
 
-bool PTN5150A_ReadClearInterruptStatus(struct PTN5150A_Platform *platform, uint8_t *interruptStatus);
+bool PTN5150A_ReadClearInterruptStatus(struct PTN5150A_Platform *platform,
+                                       uint8_t *interruptStatus);
 
 #endif // PTN5150A_H
