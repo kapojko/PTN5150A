@@ -116,6 +116,7 @@ bool PTN5150A_ReadConDetConfiguration(struct PTN5150A_Platform *platform,
 bool PTN5150A_WriteConDetConfiguration(struct PTN5150A_Platform *platform,
                                        bool disableConDetOutput);
 
+bool PTN5150A_EnableVConnStatus(struct PTN5150A_Platform *platform);
 bool PTN5150A_ReadVConnStatus(struct PTN5150A_Platform *platform,
                               enum PTN5150A_VConnDetectedStatus *vConnStatus);
 void PTN5150A_DebugPrintVConnStatus(struct PTN5150A_Platform *platform,

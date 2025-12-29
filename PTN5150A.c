@@ -10,6 +10,8 @@
 #define PTN5150A_REG_INTERRUPT_MASK 0x18
 #define PTN5150A_REG_INTERRUPT_STATUS 0x19
 
+#define PTN5150A_REG_VCONN_STATUS_ENABLE 0x43
+
 #define PTN5150A_I2C_TIMEOUT 1
 
 const char *PTN5150A_RpSelection_DFP_str[] = {
@@ -148,6 +150,26 @@ bool PTN5150A_WriteConDetConfiguration(struct PTN5150A_Platform *platform,
                                        bool disableConDetOutput) {
     uint8_t data = disableConDetOutput ? 0x01 : 0x00;
     if (platform->i2cWriteReg(platform->i2cAddress, PTN5150A_REG_CON_DET_CONFIG, &data, 1,
+                              PTN5150A_I2C_TIMEOUT) < 0) {
+        return false;
+    }
+
+    return true;
+}
+
+bool PTN5150A_EnableVConnStatus(struct PTN5150A_Platform *platform) {
+    // NOTE: The register is not described in the datasheet, but mentioned (see below)
+    /*
+    Ra detect happens in all modes. VCONN enable
+    happens autonomously when as DFP (including in DRP
+    mode).
+    Prior to accessing this register, system must write
+    register offset 43H with value of 0xe0 to enable VCONN
+    detected status. If register offset 43H is not set to 0xe0,
+    VCONN detected status read out is always 00.
+    */
+    uint8_t data = 0xe0;
+    if (platform->i2cWriteReg(platform->i2cAddress, PTN5150A_REG_VCONN_STATUS_ENABLE, &data, 1,
                               PTN5150A_I2C_TIMEOUT) < 0) {
         return false;
     }
